@@ -1,13 +1,16 @@
+# 添加这一行，解决第二个 warning
+requires-python = ">=3.12"
+
 [project]
 name = "fast-python-app"
 version = "0.1.0"
-description = "A fast Python app using uv and GitHub Actions"
 dependencies = [
     "requests>=2.31.0",
 ]
 
-[tool.uv]
-dev-dependencies = [
+# 修改这里，解决第一个 warning
+[dependency-groups]
+dev = [
     "pytest>=8.0.0",
-    "ruff>=0.3.0", # 超快的代码格式检查工具
+    "ruff>=0.3.0",
 ]
