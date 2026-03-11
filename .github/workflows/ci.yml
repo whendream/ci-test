@@ -50,9 +50,9 @@ jobs:
 
       # 6. (可选) 通知公司网关 Convoy
       # 只有在前面的步骤都成功时才会运行
-      - name: Notify Success
-        if: success()
-        run: |
-          curl -X POST https://your-convoy-endpoint.com/ingest/id \
-            -H "Content-Type: application/json" \
-            -d '{"event": "CI_SUCCESS", "repo": "${{ github.repository }}"}'
+    #   - name: Notify Success
+    #     if: success()
+    #     run: |
+    #       curl -X POST https://your-convoy-endpoint.com/ingest/id \
+    #         -H "Content-Type: application/json" \
+    #         -d '{"event": "CI_SUCCESS", "repo": "${{ github.repository }}"}'
