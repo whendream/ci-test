@@ -1,0 +1,58 @@
+name: Modern Python CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# 确保如果提交了新代码，会自动取消掉之前还没跑完的任务，节省资源
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 安装 uv
+      # 这个 Action 会自动处理 uv 的二进制文件下载和环境变量配置
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          # 核心功能：自动缓存 uv 的依赖，第二次运行可能缩短 50% 以上的时间
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
+
+      # 3. 设置 Python 并同步环境
+      # uv 会根据 pyproject.toml 自动创建虚拟环境
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      # 4. 代码质量检查 (Linting)
+      # 使用 ruff 进行极速检查，如果有语法错或格式问题，CI 会在这里停下
+      - name: Run Linting (Ruff)
+        run: uv run ruff check .
+
+      # 5. 运行单元测试
+      # 如果测试不通过，你会收到 GitHub 的失败邮件通知
+      - name: Run tests (Pytest)
+        run: uv run pytest tests/
+
+      # 6. (可选) 通知公司网关 Convoy
+      # 只有在前面的步骤都成功时才会运行
+      - name: Notify Success
+        if: success()
+        run: |
+          curl -X POST https://your-convoy-endpoint.com/ingest/id \
+            -H "Content-Type: application/json" \
+            -d '{"event": "CI_SUCCESS", "repo": "${{ github.repository }}"}'
