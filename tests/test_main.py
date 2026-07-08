@@ -6,3 +6,6 @@ def test_uv_working():
     # 验证是否使用的是我们指定的 Python 3.12
     assert sys.version_info.major == 3
     assert sys.version_info.minor == 12
+
+def test_demo1():
+    pass
